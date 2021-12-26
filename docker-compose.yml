@@ -1,0 +1,35 @@
+version: "2"
+
+services:
+  app:
+    build:
+      context: ./docker
+    container_name: app
+    ports:
+      - 8000:80
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+  db:
+    image: mysql:5.7
+    container_name: app_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: simform
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    volumes:
+      - db-data:/var/lib/mysql:rw
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: app_phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+    ports:
+      - 8080:80
+
+volumes:
+  db-data:
+

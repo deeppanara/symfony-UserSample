@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block body %}
+    <div class="container" >
+        <div class="d-flex justify-content-center">
+            <div class="col-md-6">
+                <div class="card rounded-0 shadow">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col"><h3>Sign Up</h3></div>
+                            <div class="col"><div class="float-right">{{ include('user/_delete_form.html.twig') }}</div></div>
+                        </div>
+                        {{ form_start(form) }}
+                        {{ form_widget(form) }}
+
+                        <button class="btn btn-primary">{{ 'Update'|default('Save') }}</button>
+`                       {{ form_end(form) }}
+
+                        <div class="row">
+                             <div class="col "><a href="{{ path('user_index') }}" class="btn btn-secondary float-right">back to list</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

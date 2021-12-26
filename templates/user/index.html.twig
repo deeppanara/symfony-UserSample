@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div class="table">
+            <div class="table-wrapper">
+                <div class="table-title mt-2 mb-2">
+                    <div class="row">
+                        <div class="col-8">
+                            <h2>User <b>Details</b></h2>
+                        </div>
+                        <div class="col-4 ">
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('user_new') }}"class="float-right btn btn-info add-new"><i class="fa fa-plus"></i> Create new</a>
+                            {%endif%}
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+
+                            <td>{{ user.roles.0 ?? '-' }}</td>
+                            <td>
+                                <a href="{{ path('user_show', {'id': user.id}) }}" class="btn btn-primary add-new">show</a>
+                                <a href="{{ path('user_edit', {'id': user.id}) }}" class="btn btn-danger add-new">edit</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">no records found</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

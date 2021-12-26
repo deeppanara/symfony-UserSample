@@ -1,0 +1,9 @@
+#!/bin/bash
+
+composer install;
+php bin/console cache:clear --env=dev --no-debug --no-warmup
+php bin/console cache:clear --env=prod --no-debug --no-warmup
+
+chown $USER:$GROUP ./ -Rf
+chmod -R 777 public/bundles public/uploads var/cache var/logs var/sessions
+
