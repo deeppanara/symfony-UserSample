@@ -33,7 +33,7 @@ class UserType extends AbstractType
         $this->userAddressRepository = $userAddressRepository;
         $this->entityManager = $entityManager;
     }
-    
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $object = $builder->getForm()->getData();
@@ -61,14 +61,13 @@ class UserType extends AbstractType
                 'required' => true,
                 'multiple' => false,
                 'expanded' => false,
-                'data' => $object->getRoles()[0],
+                'data' => $object->getRoles()[0] ?? null,
                 'choices' => [
                     'Admin' => 'ROLE_ADMIN',
                     'User' => 'ROLE_USER'
                 ],
                 'mapped' => false
-            ])
-        ;
+            ]);
         if ($object->getId() == null) {
             $builder->add('password',  PasswordType::class, [
                 'invalid_message' => 'The password fields must match.',
@@ -82,24 +81,25 @@ class UserType extends AbstractType
         }
 
         $builder->add('UserProfile', UserProfileType::class, [
-            'label'=> "UserProfile",
+            'label' => "UserProfile",
             'mapped' => false,
             'required' => false,
             'data' => $userProfile,
         ]);
 
 
-//        $userAddress = $this->userAddressRepository->findBy(['user' => $object->getId()]);
-//        if (!$userAddress && empty($userAddress)) {
-//            $userAddress[] = new UserAddress();
-//        }
-//
-//        $builder->add('UserAddress', CollectionType::class, [
-//            'label'=> "UserAddress",
-//            'mapped' => false,
-//            'required' => false,
-//            'data' => $userAddress,
-//        ]);
+        $userAddress = $this->userAddressRepository->findBy(['user' => $object->getId()]);
+        if (!$userAddress && empty($userAddress)) {
+            $userAddress[] = new UserAddress();
+        }
+
+        $builder->add('UserAddresses', CollectionType::class, [
+            'label' => false,
+            'mapped' => false,
+            'required' => true,
+            'data' => $userAddress,
+            'allow_add' => true,
+        ]);
 
         $builder
             ->addEventListener(FormEvents::POST_SUBMIT, array($this, 'postSubmit'));
@@ -132,16 +132,18 @@ class UserType extends AbstractType
             if ($form->has('roles') && $form->get('roles')->getData()) {
                 $object->setRoles($form->get('roles')->getData());
             }
+            if ($form->has('UserAddresses') && $form->get('UserAddresses')->getData()) {
+                $userAddress = $this->userAddressRepository->findBy(['user' => $object->getId()]);
+                foreach ($userAddress as $address) {
+                    $this->entityManager->remove($address);
+                }
 
-//            if ($form->has('UserAddress') && $form->get('UserAddress')->getData()) {
-//                $userAddress = $this->userAddressRepository->findBy(['user' => $object->getId()]);
-//                foreach ($userAddress as $address) { $this->entityManager->remove($address); }
-//
-//                foreach ($form->get('UserAddress')->getData() as $userAddress) {
-//                    $object->addUserAddress((new UserAddress())->setAddress($userAddress));
-//                }
-//            }
+                foreach ($form->get('UserAddresses')->getData() as $userAddress) {
+                    if (null !== $userAddress) {
+                        $object->addAddress((new UserAddress())->setAddress($userAddress));
+                    }
+                }
+            }
         }
-
     }
 }

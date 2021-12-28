@@ -1,0 +1,43 @@
+{{ form_start(form) }}
+{{ form_widget(form) }}
+
+<button type="button" class="add_item_link btn btn-sm btn-primary" data-collection-holder-id="user_UserAddresses">Add a Address</button>
+<button type="button" class="remove_item_link btn btn-sm btn-danger" data-collection-holder-id="user_UserAddresses">Remove all Address</button>
+<br>
+<br>
+<button class="btn btn-primary">{{ 'Update'|default('Save') }}</button>
+{{ form_end(form) }}
+<script>
+    const addFormToCollection = (e) => {
+        //console.log(e)
+
+        const collectionHolder = document.querySelector('#' + e.currentTarget.dataset.collectionHolderId);
+
+        const item = document.createElement('template');
+        const currentEle = document.querySelectorAll('#user_UserAddresses .form-group').length
+
+        const prototype = collectionHolder
+            .dataset
+            .prototype.replace('__name__label__', currentEle).replaceAll('__name__', currentEle);
+
+
+        // prototype.replaceAll('__name__', currentEle);
+        item.innerHTML = prototype
+        console.log(collectionHolder);
+        collectionHolder.appendChild(item.content);
+    }
+    const removeFormToCollection = (e) => {
+        //console.log(e)
+
+        // const collectionHolder = document.querySelector('#' + e.currentTarget.dataset.collectionHolderId);
+        document.querySelector('#' + e.currentTarget.dataset.collectionHolderId).innerHTML = '';
+
+    }
+    document
+        .querySelectorAll('.add_item_link')
+        .forEach(btn => btn.addEventListener("click", addFormToCollection));
+
+    document
+        .querySelectorAll('.remove_item_link')
+        .forEach(btn => btn.addEventListener("click", removeFormToCollection));
+</script>

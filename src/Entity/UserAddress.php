@@ -18,17 +18,18 @@ class UserAddress
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=user::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $user;
-
-    /**
      * @ORM\Column(type="text")
      */
     private $address = '';
 
-    public function __toString() {
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="addresses",cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
+    public function __toString()
+    {
         return $this->address;
     }
 
@@ -37,17 +38,6 @@ class UserAddress
         return $this->id;
     }
 
-    public function getUser(): ?user
-    {
-        return $this->user;
-    }
-
-    public function setUser(?user $user): self
-    {
-        $this->user = $user;
-
-        return $this;
-    }
 
     public function getAddress()
     {
@@ -57,6 +47,18 @@ class UserAddress
     public function setAddress(string $address): self
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

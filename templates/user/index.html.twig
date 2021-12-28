@@ -18,6 +18,18 @@
                         </div>
                     </div>
                 </div>
+                {% if is_granted('ROLE_ADMIN') %}
+                <form class="form-inline">
+                    <label class="sr-only" for="username">Name</label>
+                    <input type="text" class="form-control mb-2 mr-sm-2" id="username" name="userName" placeholder="Username" value="{{ app.request.get('userName') ?? null }}" >
+
+                    <label class="sr-only" for="email">Username</label>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="{{ app.request.get('email') ?? null }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Search</button>
+                </form>
+                {%endif%}
                 <table class="table table-bordered">
                     <thead>
                     <tr>

@@ -17,8 +17,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: simform
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_USER: simform
+      MYSQL_PASSWORD: simform
     volumes:
       - db-data:/var/lib/mysql:rw
 

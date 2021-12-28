@@ -22,11 +22,19 @@ class UserController extends AbstractController
     /**
      * @Route("/", name="user_index", methods={"GET"})
      */
-    public function index(UserRepository $userRepository, Security $security): Response
+    public function index(Request $request, UserRepository $userRepository, Security $security): Response
     {
-        dump($security->isGranted('ROLE_ADMIN'));
-        if( $security->isGranted('ROLE_ADMIN')) {
-            $data = $userRepository->findAll();
+
+        if ($security->isGranted('ROLE_ADMIN')) {
+            $query = $userRepository->createQueryBuilder('u');
+            if ($request->get('userName') ) {
+                $query->andwhere('u.username LIKE :username')->setParameter('username', '%'.$request->get('userName').'%');
+            }
+            if ($request->get('email') ) {
+                $query->andWhere('u.email LIKE :email')->setParameter('email', '%' . $request->get('email') . '%');
+            }
+
+            $data = $query->getQuery()->getResult();
         } else {
             $data[] = $security->getUser();
         }
@@ -41,7 +49,7 @@ class UserController extends AbstractController
      */
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordEncoderInterface $encoder, Security $security): Response
     {
-        if( !$security->isGranted('ROLE_ADMIN')) {
+        if (!$security->isGranted('ROLE_ADMIN')) {
             return $this->redirectToRoute('user_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -51,9 +59,10 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
-            $user->setPassword($encoder->encodePassword($user,$form->get('password')->getData()));
-
+            $user->setPassword($encoder->encodePassword($user, $form->get('password')->getData()));
             $entityManager->persist($user);
+            $userProfile = $user->getUserProfile()->setUserId($user);
+            $entityManager->persist($userProfile);
             $entityManager->flush();
 
             return $this->redirectToRoute('user_index', [], Response::HTTP_SEE_OTHER);
@@ -70,12 +79,12 @@ class UserController extends AbstractController
      */
     public function show(User $user, Security $security): Response
     {
-        if( !$security->isGranted('ROLE_ADMIN')  && $security->getUser()->getId() != $user->getId()) {
+        if (!$security->isGranted('ROLE_ADMIN')  && $security->getUser()->getId() != $user->getId()) {
             return $this->redirectToRoute('user_show', ['id' => $security->getUser()->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('user/show.html.twig', [
-            'user' => $security->getUser(),
+            'user' => $user,
         ]);
     }
 
@@ -84,7 +93,7 @@ class UserController extends AbstractController
      */
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordEncoderInterface $encoder, Security $security): Response
     {
-        if( !$security->isGranted('ROLE_ADMIN')  && $security->getUser()->getId() != $user->getId()) {
+        if (!$security->isGranted('ROLE_ADMIN')  && $security->getUser()->getId() != $user->getId()) {
             return $this->redirectToRoute('user_edit', ['id' => $security->getUser()->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -108,11 +117,11 @@ class UserController extends AbstractController
      */
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
     {
-        if( !$security->isGranted('ROLE_ADMIN')  && $security->getUser()->getId() != $user->getId()) {
+        if (!$security->isGranted('ROLE_ADMIN')  && $security->getUser()->getId() != $user->getId()) {
             return $this->redirectToRoute('user_edit', ['id' => $security->getUser()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
             $entityManager->remove($user);
             $entityManager->flush();
         }

@@ -47,13 +47,19 @@ class User implements UserInterface
 
     private $userProfile;
 
-    public function __toString() {
+    /**
+     * @ORM\OneToMany(targetEntity=UserAddress::class, mappedBy="user", orphanRemoval=true,cascade={"persist"})
+     */
+    private $addresses;
+
+    public function __toString()
+    {
         return $this->username;
     }
 
     public function __construct()
     {
-
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,7 +135,7 @@ class User implements UserInterface
         return $this->userProfile;
     }
 
-    public function setUserProfile(UserProfile $userProfile): self
+    public function setUserProfile(?UserProfile $userProfile): self
     {
         // set the owning side of the relation if necessary
         if ($userProfile->getUserId() !== $this) {
@@ -158,4 +164,33 @@ class User implements UserInterface
         // TODO: Implement eraseCredentials() method.
     }
 
+    /**
+     * @return Collection|UserAddress[]
+     */
+    public function getAddresses(): Collection
+    {
+        return $this->addresses;
+    }
+
+    public function addAddress(UserAddress $address): self
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses[] = $address;
+            $address->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAddress(UserAddress $address): self
+    {
+        if ($this->addresses->removeElement($address)) {
+            // set the owning side to null (unless already changed)
+            if ($address->getUser() === $this) {
+                $address->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }

@@ -13,8 +13,9 @@ class UserAddressType extends AbstractType implements FormTypeInterface
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('address')
-        ;
+            ->add('address', TextType::class, [
+                'label' => false,
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
